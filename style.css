@@ -232,13 +232,15 @@ form button[type="submit"] {
 }
 
 .summary-grid article,
+.portal-card,
 .feature-list div,
 .traffic-grid article,
 .workspace-panel,
 .output-panel,
 .risk-card,
 .video-panel,
-.game-panel {
+.game-panel,
+.history-panel {
     background: var(--white);
     border: 1px solid var(--line);
     border-radius: 8px;
@@ -247,6 +249,26 @@ form button[type="submit"] {
 
 .summary-grid article {
     padding: 22px;
+}
+
+.portal-card {
+    display: grid;
+    gap: 8px;
+    min-height: 230px;
+    padding: 22px;
+    transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+}
+
+.portal-card:hover {
+    border-color: var(--green);
+    box-shadow: var(--shadow);
+    transform: translateY(-3px);
+}
+
+.portal-card strong {
+    align-self: end;
+    color: var(--green-dark);
+    font-weight: 900;
 }
 
 .summary-icon {
@@ -488,6 +510,32 @@ textarea {
     margin: 0;
 }
 
+.braden-scale {
+    display: grid;
+    gap: 12px;
+    grid-template-columns: repeat(5, 1fr);
+    margin-top: 18px;
+}
+
+.braden-scale article {
+    background: white;
+    border: 1px solid #cfe2ff;
+    border-radius: 8px;
+    padding: 16px;
+}
+
+.braden-scale strong {
+    color: #204aa8;
+    display: block;
+    margin-bottom: 6px;
+}
+
+.braden-scale p {
+    color: var(--muted);
+    font-size: 0.95rem;
+    margin: 0;
+}
+
 .pressure-layout {
     display: grid;
     gap: 18px;
@@ -585,6 +633,64 @@ textarea {
 .report-grid strong {
     display: block;
     margin-bottom: 6px;
+}
+
+.history-band {
+    background: #f8fafc;
+}
+
+.history-grid {
+    display: grid;
+    gap: 18px;
+    grid-template-columns: repeat(3, 1fr);
+    margin-top: 22px;
+}
+
+.history-panel {
+    padding: 20px;
+}
+
+.clear-history {
+    background: #eef2f7;
+    color: var(--muted);
+    min-height: 38px;
+    padding: 8px 12px;
+}
+
+.history-list {
+    display: grid;
+    gap: 12px;
+}
+
+.history-item {
+    background: #fbfdff;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 12px;
+}
+
+.history-item time {
+    color: var(--muted);
+    display: block;
+    font-size: 0.86rem;
+    font-weight: 700;
+    margin-bottom: 6px;
+}
+
+.history-item strong {
+    display: block;
+    margin-bottom: 4px;
+}
+
+.history-item p {
+    color: var(--muted);
+    font-size: 0.94rem;
+    margin: 0;
+}
+
+.empty-history {
+    color: var(--muted);
+    font-weight: 700;
 }
 
 .risk-card {
@@ -714,10 +820,12 @@ textarea {
     .tool-layout,
     .diet-layout,
     .braden-grid,
+    .braden-scale,
     .pressure-layout,
     .feature-list,
     .traffic-grid,
     .report-grid,
+    .history-grid,
     .education-grid {
         grid-template-columns: 1fr;
     }

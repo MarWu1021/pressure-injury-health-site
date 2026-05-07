@@ -23,6 +23,89 @@ const gameSymbols = ["藥", "藥", "水", "水", "飯", "飯", "心", "心", "�
 let openCards = [];
 let lockBoard = false;
 
+const HISTORY_KEYS = {
+    soapie: "careHistory.soapie",
+    pressure: "careHistory.pressure",
+    diet: "careHistory.diet"
+};
+
+function escapeHtml(value) {
+    return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+function formatDateTime(isoString) {
+    return new Date(isoString).toLocaleString("zh-TW", {
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit"
+    });
+}
+
+function readHistory(type) {
+    try {
+        return JSON.parse(localStorage.getItem(HISTORY_KEYS[type]) || "[]");
+    } catch {
+        return [];
+    }
+}
+
+function saveHistory(type, item) {
+    const items = readHistory(type);
+    items.unshift({ ...item, savedAt: new Date().toISOString() });
+    localStorage.setItem(HISTORY_KEYS[type], JSON.stringify(items.slice(0, 8)));
+    renderHistory(type);
+}
+
+function clearHistory(type) {
+    localStorage.removeItem(HISTORY_KEYS[type]);
+    renderHistory(type);
+}
+
+function renderHistory(type) {
+    const target = document.getElementById(`${type}History`);
+    if (!target) return;
+
+    const items = readHistory(type);
+    if (!items.length) {
+        target.innerHTML = '<p class="empty-history">尚無紀錄。</p>';
+        return;
+    }
+
+    target.innerHTML = items.map((item) => {
+        if (type === "soapie") {
+            return `<article class="history-item">
+                <time>${formatDateTime(item.savedAt)}</time>
+                <strong>${escapeHtml(item.title)}</strong>
+                <p>${escapeHtml(item.summary)}</p>
+            </article>`;
+        }
+
+        if (type === "pressure") {
+            return `<article class="history-item">
+                <time>${formatDateTime(item.savedAt)}</time>
+                <strong>${escapeHtml(item.scoreText)}</strong>
+                <p>${escapeHtml(item.summary)}</p>
+            </article>`;
+        }
+
+        return `<article class="history-item">
+            <time>${formatDateTime(item.savedAt)}</time>
+            <strong>${escapeHtml(item.level)}</strong>
+            <p>${escapeHtml(item.summary)}</p>
+        </article>`;
+    }).join("");
+}
+
+function renderAllHistory() {
+    Object.keys(HISTORY_KEYS).forEach(renderHistory);
+}
+
 function getBradenValues() {
     const form = document.getElementById("bradenForm");
     if (!form) return [];
@@ -31,11 +114,46 @@ function getBradenValues() {
 
 function classifyBraden(score) {
     if (!score) return { label: "尚未完成", className: "", advice: "請先填寫六項 Braden 評估分數。" };
-    if (score <= 9) return { label: "極高風險", className: "risk-high", advice: "需立即加強翻身、減壓床墊、皮膚檢查與傷口照護評估。" };
-    if (score <= 12) return { label: "高風險", className: "risk-high", advice: "建議每 2 小時翻身、使用減壓輔具，並每日追蹤皮膚狀況。" };
-    if (score <= 14) return { label: "中度風險", className: "risk-mid", advice: "需安排規律翻身、保持皮膚乾爽，留意營養攝取與摩擦剪力。" };
-    if (score <= 18) return { label: "輕度風險", className: "risk-mid", advice: "建議持續觀察受壓部位，鼓勵活動與補充足夠營養。" };
-    return { label: "低風險", className: "risk-low", advice: "目前風險較低，仍需維持皮膚清潔、活動與定期再評估。" };
+    if (score <= 9) return {
+        label: "極高風險",
+        className: "risk-high",
+        advice: "需立即加強翻身、減壓床墊、皮膚檢查與傷口照護評估。",
+        turning: "每 1-2 小時翻身，必要時啟動高風險照護流程。",
+        skin: "每班檢查尾骶骨、足跟、髖部等受壓部位，留意破皮、滲液與異味。",
+        support: "使用減壓床墊、足跟保護與移位輔具，降低摩擦與剪力。"
+    };
+    if (score <= 12) return {
+        label: "高風險",
+        className: "risk-high",
+        advice: "建議每 2 小時翻身、使用減壓輔具，並每日追蹤皮膚狀況。",
+        turning: "至少每 2 小時翻身，坐椅時每小時協助減壓。",
+        skin: "每日完整皮膚評估，潮濕時立即清潔並更換床單或尿布。",
+        support: "安排減壓床墊，注意搬移時避免拖拉造成剪力。"
+    };
+    if (score <= 14) return {
+        label: "中度風險",
+        className: "risk-mid",
+        advice: "需安排規律翻身、保持皮膚乾爽，留意營養攝取與摩擦剪力。",
+        turning: "建立固定翻身時程，鼓勵可耐受的床上活動。",
+        skin: "檢查泛紅是否退色，避免皮膚長時間潮濕。",
+        support: "保持床單平整，必要時使用枕頭或軟墊分散壓力。"
+    };
+    if (score <= 18) return {
+        label: "輕度風險",
+        className: "risk-mid",
+        advice: "建議持續觀察受壓部位，鼓勵活動與補充足夠營養。",
+        turning: "提醒定時變換姿勢，增加下床或坐起活動。",
+        skin: "每日觀察皮膚顏色、溫度與乾濕狀態。",
+        support: "可依狀況使用坐墊或足跟墊，減少局部壓力。"
+    };
+    return {
+        label: "低風險",
+        className: "risk-low",
+        advice: "目前風險較低，仍需維持皮膚清潔、活動與定期再評估。",
+        turning: "維持日常活動與自主翻身。",
+        skin: "定期再評估皮膚狀態，住院期間仍需追蹤。",
+        support: "維持良好營養與水分攝取，避免長時間壓迫。"
+    };
 }
 
 function updateBradenScore() {
@@ -76,6 +194,18 @@ function makePressureReport() {
                 <span>${completed ? `${score} 分，${risk.label}` : "尚未完成，請補齊六項分數"}</span>
             </div>
             <div>
+                <strong>翻身與減壓</strong>
+                <span>${risk.turning || risk.advice}</span>
+            </div>
+            <div>
+                <strong>皮膚觀察</strong>
+                <span>${risk.skin || "請補齊評估後產生建議。"}</span>
+            </div>
+            <div>
+                <strong>輔具與照護</strong>
+                <span>${risk.support || "請依臨床狀況安排減壓與移位輔具。"}</span>
+            </div>
+            <div>
                 <strong>主要建議</strong>
                 <span>${risk.advice}</span>
             </div>
@@ -86,6 +216,11 @@ function makePressureReport() {
         </div>
         <p class="note">此報告為教學展示用途，壓瘡分期、感染判斷與治療方式仍需由醫護人員評估。</p>
     `;
+
+    saveHistory("pressure", {
+        scoreText: completed ? `${score} 分｜${risk.label}` : "尚未完成",
+        summary: [risk.advice, ...extraFlags].filter(Boolean).join("；")
+    });
 }
 
 function handlePressurePhoto(event) {
@@ -131,7 +266,7 @@ function generateSoapie(note) {
     };
 }
 
-function renderSoapie(data) {
+function renderSoapie(data, shouldSave = false) {
     const output = document.getElementById("soapieOutput");
     const labels = {
         S: "S 主觀資料",
@@ -148,6 +283,13 @@ function renderSoapie(data) {
 
     const lowOxygen = /SpO2\s*(8\d|9[0-4])/.test(data.O);
     document.getElementById("alertBadge").textContent = lowOxygen ? "紅燈警戒" : "持續追蹤";
+
+    if (shouldSave) {
+        saveHistory("soapie", {
+            title: lowOxygen ? "呼吸照護紀錄｜紅燈警戒" : "護理紀錄草稿",
+            summary: `${data.S} ${data.O}`
+        });
+    }
 }
 
 function analyzeDiet(condition, meal) {
@@ -187,7 +329,7 @@ function dedupe(items) {
     return [...new Set(items)];
 }
 
-function renderRisk(result) {
+function renderRisk(result, shouldSave = false, context = {}) {
     document.getElementById("riskLevel").textContent = result.level;
     document.getElementById("riskTitle").textContent = result.title;
     document.getElementById("riskText").textContent = result.text;
@@ -195,6 +337,13 @@ function renderRisk(result) {
     if (heroRisk) heroRisk.textContent = result.level;
     const light = document.getElementById("riskLight");
     light.className = `risk-light ${result.color}`;
+
+    if (shouldSave) {
+        saveHistory("diet", {
+            level: result.level,
+            summary: `${context.conditionLabel || "飲食分析"}｜${context.meal || ""}｜${result.title}`
+        });
+    }
 }
 
 function shuffle(items) {
@@ -263,10 +412,11 @@ function init() {
     renderRisk(analyzeDiet("diabetes", document.getElementById("meal").value));
     updateBradenScore();
     buildGame();
+    renderAllHistory();
 
     document.getElementById("soapieForm").addEventListener("submit", (event) => {
         event.preventDefault();
-        renderSoapie(generateSoapie(document.getElementById("nurseNote").value));
+        renderSoapie(generateSoapie(document.getElementById("nurseNote").value), true);
     });
 
     document.getElementById("clearSoapie").addEventListener("click", () => {
@@ -277,13 +427,17 @@ function init() {
     document.getElementById("dietForm").addEventListener("submit", (event) => {
         event.preventDefault();
         const condition = document.getElementById("condition").value;
+        const conditionLabel = document.getElementById("condition").selectedOptions[0].textContent;
         const meal = document.getElementById("meal").value;
-        renderRisk(analyzeDiet(condition, meal));
+        renderRisk(analyzeDiet(condition, meal), true, { conditionLabel, meal });
     });
 
     document.getElementById("bradenForm").addEventListener("change", updateBradenScore);
     document.getElementById("pressurePhoto").addEventListener("change", handlePressurePhoto);
     document.getElementById("makePressureReport").addEventListener("click", makePressureReport);
+    document.querySelectorAll(".clear-history").forEach((button) => {
+        button.addEventListener("click", () => clearHistory(button.dataset.history));
+    });
 
     document.getElementById("resetGame").addEventListener("click", buildGame);
 }

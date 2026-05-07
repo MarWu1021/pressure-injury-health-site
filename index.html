@@ -48,27 +48,31 @@
             </div>
         </section>
 
-        <section class="summary-grid" aria-label="資料整合摘要">
-            <article>
+        <section class="summary-grid portal-grid" aria-label="功能入口">
+            <a class="portal-card" href="#nursing">
                 <span class="summary-icon">01</span>
                 <h2>護理紀錄 AI</h2>
                 <p>語音轉文字、自然語言處理、SOAPIE 草稿、自動提醒遺漏評估，目標是減少紀錄時間並提升品質。</p>
-            </article>
-            <article>
+                <strong>開始整理紀錄</strong>
+            </a>
+            <a class="portal-card" href="#pressure">
                 <span class="summary-icon">02</span>
-                <h2>飲食風險 AI</h2>
-                <p>拍照辨識餐點、比對營養成分，對糖尿病與腎臟病飲食以紅黃綠燈呈現風險。</p>
-            </article>
-            <article>
-                <span class="summary-icon">03</span>
                 <h2>壓瘡評估 AI</h2>
                 <p>整合 Braden 六大項目、傷口照片與臨床資訊，快速產生壓瘡風險分級與照護建議。</p>
-            </article>
-            <article>
+                <strong>評估壓瘡風險</strong>
+            </a>
+            <a class="portal-card" href="#diet">
+                <span class="summary-icon">03</span>
+                <h2>飲食風險 AI</h2>
+                <p>拍照辨識餐點、比對營養成分，對糖尿病與腎臟病飲食以紅黃綠燈呈現風險。</p>
+                <strong>檢查飲食風險</strong>
+            </a>
+            <a class="portal-card" href="#education">
                 <span class="summary-icon">04</span>
-                <h2>長者友善介面</h2>
+                <h2>衛教互動</h2>
                 <p>保留原始網站的大按鈕、AI 護理師、衛教影片與動腦遊戲，讓功能更容易被使用。</p>
-            </article>
+                <strong>進入健康學堂</strong>
+            </a>
         </section>
 
         <section id="nursing" class="section-band">
@@ -194,6 +198,29 @@
                 </form>
             </div>
 
+            <div class="braden-scale">
+                <article>
+                    <strong>19-23 分｜低風險</strong>
+                    <p>維持皮膚清潔乾爽，鼓勵活動，定期再評估。</p>
+                </article>
+                <article>
+                    <strong>15-18 分｜輕度風險</strong>
+                    <p>觀察受壓部位，協助翻身與補充足夠營養。</p>
+                </article>
+                <article>
+                    <strong>13-14 分｜中度風險</strong>
+                    <p>規律翻身、減少摩擦剪力，保持床單平整。</p>
+                </article>
+                <article>
+                    <strong>10-12 分｜高風險</strong>
+                    <p>每 2 小時翻身，使用減壓輔具，每日追蹤皮膚。</p>
+                </article>
+                <article>
+                    <strong>≤ 9 分｜極高風險</strong>
+                    <p>立即啟動高風險照護，必要時通知傷口照護團隊。</p>
+                </article>
+            </div>
+
             <div class="pressure-layout">
                 <article class="workspace-panel">
                     <h3>第一步：拍攝照片（可選）</h3>
@@ -295,6 +322,37 @@
                     </div>
                     <div id="gameBoard" class="game-board" aria-label="記憶翻牌遊戲"></div>
                     <p class="note" id="gameStatus">找出相同的健康圖示。</p>
+                </article>
+            </div>
+        </section>
+
+        <section id="history" class="section-band history-band">
+            <div class="section-heading">
+                <p class="eyebrow">Local Care Timeline</p>
+                <h2>歷史紀錄</h2>
+                <p>系統會把護理紀錄、壓瘡評估與飲食分析暫存在這台瀏覽器，方便展示長期追蹤概念。</p>
+            </div>
+            <div class="history-grid">
+                <article class="history-panel">
+                    <div class="panel-title">
+                        <h3>SOAPIE 紀錄</h3>
+                        <button type="button" class="clear-history" data-history="soapie">清除</button>
+                    </div>
+                    <div id="soapieHistory" class="history-list"></div>
+                </article>
+                <article class="history-panel">
+                    <div class="panel-title">
+                        <h3>壓瘡評估</h3>
+                        <button type="button" class="clear-history" data-history="pressure">清除</button>
+                    </div>
+                    <div id="pressureHistory" class="history-list"></div>
+                </article>
+                <article class="history-panel">
+                    <div class="panel-title">
+                        <h3>飲食分析</h3>
+                        <button type="button" class="clear-history" data-history="diet">清除</button>
+                    </div>
+                    <div id="dietHistory" class="history-list"></div>
                 </article>
             </div>
         </section>

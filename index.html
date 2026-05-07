@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>銀髮健康全守護站</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="topbar">
+        <a class="brand" href="#home" aria-label="回到首頁">
+            <span class="brand-mark">+</span>
+            <span>銀髮健康全守護站</span>
+        </a>
+        <nav class="nav-links" aria-label="主要導覽">
+            <a href="#nursing">護理紀錄</a>
+            <a href="#pressure">壓瘡評估</a>
+            <a href="#diet">飲食管理</a>
+            <a href="#education">衛教互動</a>
+        </nav>
+    </header>
+
+    <main id="home">
+        <section class="hero">
+            <div class="hero-copy">
+                <p class="eyebrow">AI Nursing + Pressure + Diet Care</p>
+                <h1>把護理紀錄、壓瘡風險、飲食管理與長者衛教整合在同一站</h1>
+                <p class="hero-text">依據兩份專題資料與 Gemini 介面整理：智慧護理紀錄輔助、Braden 壓瘡風險評估、慢性病智慧飲食管理，再融合原網站的影片學堂與記憶遊戲。</p>
+                <div class="hero-actions">
+                    <a class="primary-action" href="#nursing">開始整理紀錄</a>
+                    <a class="secondary-action" href="#pressure">評估壓瘡風險</a>
+                </div>
+            </div>
+            <div class="hero-visual" aria-label="護理與飲食照護插圖">
+                <div class="monitor-card">
+                    <span class="status-dot"></span>
+                    <strong>302 床 李女士</strong>
+                    <small>SpO2 88% | 呼吸 28 次/分</small>
+                    <div class="wave-line"></div>
+                </div>
+                <div class="plate-card">
+                    <span>Braden 壓瘡風險</span>
+                    <strong id="heroPressureRisk">尚未完成</strong>
+                </div>
+            </div>
+        </section>
+
+        <section class="summary-grid" aria-label="資料整合摘要">
+            <article>
+                <span class="summary-icon">01</span>
+                <h2>護理紀錄 AI</h2>
+                <p>語音轉文字、自然語言處理、SOAPIE 草稿、自動提醒遺漏評估，目標是減少紀錄時間並提升品質。</p>
+            </article>
+            <article>
+                <span class="summary-icon">02</span>
+                <h2>飲食風險 AI</h2>
+                <p>拍照辨識餐點、比對營養成分，對糖尿病與腎臟病飲食以紅黃綠燈呈現風險。</p>
+            </article>
+            <article>
+                <span class="summary-icon">03</span>
+                <h2>壓瘡評估 AI</h2>
+                <p>整合 Braden 六大項目、傷口照片與臨床資訊，快速產生壓瘡風險分級與照護建議。</p>
+            </article>
+            <article>
+                <span class="summary-icon">04</span>
+                <h2>長者友善介面</h2>
+                <p>保留原始網站的大按鈕、AI 護理師、衛教影片與動腦遊戲，讓功能更容易被使用。</p>
+            </article>
+        </section>
+
+        <section id="nursing" class="section-band">
+            <div class="section-heading">
+                <p class="eyebrow">Smart Nursing Documentation System</p>
+                <h2>AI 護理紀錄輔助</h2>
+                <p>把護理師口述、生命徵象、檢驗資料與醫囑整合成標準化 SOAPIE 紀錄草稿。</p>
+            </div>
+
+            <div class="tool-layout">
+                <form class="workspace-panel" id="soapieForm">
+                    <label for="nurseNote">床邊口述內容</label>
+                    <textarea id="nurseNote" rows="9">302床李女士說她覺得胸口好悶、喘不過氣。我看她呼吸很費力，每分鐘28次，血氧掉到88%。我趕快幫她搖高床頭，給了3公升氧氣。聽診肺部有喘鳴音，已經通知王醫師，醫師開立噴霧治療，等一下做完再看情況。</textarea>
+                    <div class="button-row">
+                        <button type="submit">產生 SOAPIE</button>
+                        <button type="button" class="ghost-button" id="clearSoapie">清空</button>
+                    </div>
+                    <p class="note">此工具為專題展示用，正式醫療紀錄仍需由專業人員確認。</p>
+                </form>
+
+                <article class="output-panel">
+                    <div class="panel-title">
+                        <h3>AI 草稿</h3>
+                        <span id="alertBadge">紅燈警戒</span>
+                    </div>
+                    <div id="soapieOutput" class="soapie-output"></div>
+                </article>
+            </div>
+
+            <div class="feature-list">
+                <div>
+                    <h3>臨床需求</h3>
+                    <p>紀錄耗時、資訊零散、重複鍵入、交班斷層與結構化程度不足。</p>
+                </div>
+                <div>
+                    <h3>智慧提醒</h3>
+                    <p>提醒未完成紀錄、疼痛評估、跌倒風險、低血氧與重要生命徵象異常。</p>
+                </div>
+                <div>
+                    <h3>預期效益</h3>
+                    <p>紀錄時間預計減少 40-60%，降低補紀錄負擔，提升照護連續性。</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="pressure" class="section-band pressure-band">
+            <div class="section-heading">
+                <p class="eyebrow">Braden Pressure Injury Assistant</p>
+                <h2>壓瘡 AI 評估助教</h2>
+                <p>依 Gemini 截圖內容建立 Braden 壓瘡風險評估表，建議填寫六項分數，並可加入照片與臨床補充資料。</p>
+            </div>
+
+            <div class="braden-shell">
+                <div class="braden-header">
+                    <h3>Braden 壓瘡風險評估（建議填寫）</h3>
+                    <div class="score-pill">
+                        <span>目前總分：</span>
+                        <strong id="bradenScore">--</strong>
+                        <em id="bradenStatus">尚未完成</em>
+                    </div>
+                </div>
+
+                <form id="bradenForm" class="braden-grid">
+                    <label>
+                        <span>1. 感官知覺（對壓力引起不適感的反應能力）</span>
+                        <select name="sensory">
+                            <option value="">請選擇...</option>
+                            <option value="1">1分 - 完全喪失：對疼痛刺激無反應</option>
+                            <option value="2">2分 - 嚴重喪失：僅對疼痛刺激有反應</option>
+                            <option value="3">3分 - 輕度喪失：對口頭指令有反應，但不能總表達不適</option>
+                            <option value="4">4分 - 未受損：對口頭指令有反應，能表達不適</option>
+                        </select>
+                    </label>
+                    <label>
+                        <span>2. 潮濕程度（皮膚暴露於潮濕環境的程度）</span>
+                        <select name="moisture">
+                            <option value="">請選擇...</option>
+                            <option value="1">1分 - 持續潮濕：皮膚幾乎總是處於潮濕狀態</option>
+                            <option value="2">2分 - 經常潮濕：皮膚經常但不是總是潮濕</option>
+                            <option value="3">3分 - 偶爾潮濕：皮膚偶爾潮濕，每天需換一次床單</option>
+                            <option value="4">4分 - 很少潮濕：皮膚通常是乾燥的</option>
+                        </select>
+                    </label>
+                    <label>
+                        <span>3. 活動能力（軀體活動的程度）</span>
+                        <select name="activity">
+                            <option value="">請選擇...</option>
+                            <option value="1">1分 - 臥床：侷限於床上</option>
+                            <option value="2">2分 - 坐椅：步行能力嚴重受限或不能步行</option>
+                            <option value="3">3分 - 偶爾行走：白天偶爾能步行一段路</option>
+                            <option value="4">4分 - 經常行走：白天室外至少步行兩次</option>
+                        </select>
+                    </label>
+                    <label>
+                        <span>4. 移動能力（改變和控制體位的能力）</span>
+                        <select name="mobility">
+                            <option value="">請選擇...</option>
+                            <option value="1">1分 - 完全不能：不經幫助不能進行微小體位改變</option>
+                            <option value="2">2分 - 嚴重受限：偶爾能進行微小的肢體或體位改變</option>
+                            <option value="3">3分 - 輕度受限：能獨立且經常進行微小的體位改變</option>
+                            <option value="4">4分 - 不受限：能獨立且經常進行體位改變</option>
+                        </select>
+                    </label>
+                    <label>
+                        <span>5. 營養攝取（平常的食物攝入模式）</span>
+                        <select name="nutrition">
+                            <option value="">請選擇...</option>
+                            <option value="1">1分 - 極差：從未吃過一餐完整的食物</option>
+                            <option value="2">2分 - 不足：很少吃完一餐完整的食物</option>
+                            <option value="3">3分 - 適當：能吃掉一半以上的食物</option>
+                            <option value="4">4分 - 優良：每餐能吃掉大部份食物</option>
+                        </select>
+                    </label>
+                    <label>
+                        <span>6. 摩擦與剪力</span>
+                        <select name="friction">
+                            <option value="">請選擇...</option>
+                            <option value="1">1分 - 有問題：移動時需要中度到大量的幫助</option>
+                            <option value="2">2分 - 潛在問題：移動時需要最小的幫助</option>
+                            <option value="3">3分 - 無明顯問題：能獨立在床上或椅子上移動</option>
+                        </select>
+                    </label>
+                </form>
+            </div>
+
+            <div class="pressure-layout">
+                <article class="workspace-panel">
+                    <h3>第一步：拍攝照片（可選）</h3>
+                    <label class="upload-zone" for="pressurePhoto">
+                        <input id="pressurePhoto" type="file" accept="image/*">
+                        <span>上傳傷口或皮膚狀況照片</span>
+                        <small>建議拍攝尾骶骨、足跟、髖部等受壓部位，避免拍到可識別個資。</small>
+                    </label>
+                    <img id="pressurePreview" class="pressure-preview hidden" alt="壓瘡評估照片預覽">
+                </article>
+
+                <article class="workspace-panel">
+                    <h3>第二步：其他臨床資訊（選填）</h3>
+                    <div class="check-row">
+                        <label><input id="hasDiabetes" type="checkbox"> 有糖尿病史</label>
+                        <label><input id="hasFever" type="checkbox"> 近期有發燒</label>
+                    </div>
+                    <label for="pressureNote">補充描述（如位置、異味）</label>
+                    <textarea id="pressureNote" rows="5" placeholder="例如：尾骶骨處、傷口周圍發紅、滲液或異味..."></textarea>
+                </article>
+            </div>
+
+            <div class="button-row centered-row">
+                <button id="makePressureReport" type="button">開始 AI 分析報告</button>
+            </div>
+
+            <article id="pressureReport" class="output-panel pressure-report hidden"></article>
+        </section>
+
+        <section id="diet" class="section-band diet-band">
+            <div class="section-heading">
+                <p class="eyebrow">AI Food Risk Management</p>
+                <h2>智慧飲食風險管理</h2>
+                <p>針對糖尿病、腎臟病等慢性病照護情境，協助判斷外食與餐點風險。</p>
+            </div>
+
+            <div class="diet-layout">
+                <form class="workspace-panel" id="dietForm">
+                    <label for="condition">照護需求</label>
+                    <select id="condition">
+                        <option value="diabetes">糖尿病飲食控制</option>
+                        <option value="kidney">腎臟病飲食控制</option>
+                        <option value="both">糖尿病 + 腎臟病</option>
+                    </select>
+                    <label for="meal">餐點內容</label>
+                    <input id="meal" type="text" value="白飯、滷肉、香蕉、含糖紅茶" placeholder="例如：白飯、青菜、湯、飲料">
+                    <button type="submit">分析餐點</button>
+                </form>
+
+                <article class="risk-card" id="riskCard">
+                    <div class="risk-light yellow" id="riskLight"></div>
+                    <div>
+                        <span id="riskLevel">黃燈：適量</span>
+                        <h3 id="riskTitle">需要控制份量</h3>
+                        <p id="riskText">請輸入餐點後分析。</p>
+                    </div>
+                </article>
+            </div>
+
+            <div class="traffic-grid">
+                <article>
+                    <span class="light green"></span>
+                    <h3>綠燈</h3>
+                    <p>較安全，可依個人飲食計畫適量攝取。</p>
+                </article>
+                <article>
+                    <span class="light yellow"></span>
+                    <h3>黃燈</h3>
+                    <p>需要控制份量，注意糖分、鉀、磷與加工調味。</p>
+                </article>
+                <article>
+                    <span class="light red"></span>
+                    <h3>紅燈</h3>
+                    <p>高糖、高鉀、高磷或高鈉風險，建議先詢問營養師或醫護人員。</p>
+                </article>
+            </div>
+        </section>
+
+        <section id="education" class="section-band">
+            <div class="section-heading">
+                <p class="eyebrow">Senior Friendly Care</p>
+                <h2>衛教與動腦互動</h2>
+                <p>延伸原網站的長者友善功能，讓健康照護不只記錄，也能學習與互動。</p>
+            </div>
+
+            <div class="education-grid">
+                <article class="video-panel">
+                    <div class="video-frame">
+                        <iframe src="https://www.youtube.com/embed/eiCw5Rq5EZc" title="健康生活衛教影片" allowfullscreen></iframe>
+                    </div>
+                    <h3>健康生活學堂</h3>
+                    <p>可替換為課堂指定影片，作為防跌、用藥安全、飲食控制與居家照護衛教入口。</p>
+                </article>
+
+                <article class="game-panel">
+                    <div class="panel-title">
+                        <h3>每日記憶挑戰</h3>
+                        <button type="button" id="resetGame">重新挑戰</button>
+                    </div>
+                    <div id="gameBoard" class="game-board" aria-label="記憶翻牌遊戲"></div>
+                    <p class="note" id="gameStatus">找出相同的健康圖示。</p>
+                </article>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p>資料來源：AI 於護理紀錄與電子病歷之應用、AI 智慧飲食管理系統、原 Netlify 銀髮健康站介面。</p>
+        <p>本網站為專題展示，不取代醫師、護理師、藥師或營養師之專業判斷。</p>
+    </footer>
+
+    <script src="app.js?v=1"></script>
+</body>
+</html>

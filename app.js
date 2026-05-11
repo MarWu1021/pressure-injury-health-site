@@ -18,7 +18,7 @@ const foodRiskTerms = {
     }
 };
 
-const gameSymbols = ["藥", "藥", "水", "水", "飯", "飯", "心", "心", "氧", "氧", "步", "步", "睡", "睡", "護", "護"];
+const gameSymbols = ["🍎", "🍎", "🍌", "🍌", "🍇", "🍇", "🍊", "🍊", "🍓", "🍓", "🥝", "🥝", "🍍", "🍍", "🍉", "🍉"];
 
 let openCards = [];
 let lockBoard = false;
@@ -356,7 +356,7 @@ function buildGame() {
     board.innerHTML = "";
     openCards = [];
     lockBoard = false;
-    status.textContent = "找出相同的健康圖示。";
+    status.textContent = "找出相同的水果圖示。";
 
     shuffle(gameSymbols).forEach((symbol, index) => {
         const card = document.createElement("button");

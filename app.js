@@ -20,6 +20,24 @@ const foodRiskTerms = {
 
 const gameSymbols = ["🍎", "🍎", "🍌", "🍌", "🍇", "🍇", "🍊", "🍊", "🍓", "🍓", "🥝", "🥝", "🍍", "🍍", "🍉", "🍉"];
 
+const healthVideos = [
+    "3SpS4oDsN-g",
+    "9XhiP7KLVdg",
+    "61kPjUQAoNU",
+    "ciYupDYhHQQ",
+    "0wFT1h6JO8U",
+    "TY_tX-KbweQ",
+    "e5c5EEQNMFM",
+    "Fajdx5eEGRs",
+    "mTZR38eGf5w",
+    "U5aQUN5c4U8",
+    "nSm8bARXomw",
+    "IyX5kU9ad54",
+    "tGJ4WtKffeA",
+    "UzfJ4EYn7qo",
+    "lzB_0doHzhk"
+];
+
 let openCards = [];
 let lockBoard = false;
 
@@ -104,6 +122,31 @@ function renderHistory(type) {
 
 function renderAllHistory() {
     Object.keys(HISTORY_KEYS).forEach(renderHistory);
+}
+
+function pickRandomVideo(previousId = "") {
+    if (healthVideos.length === 1) return healthVideos[0];
+    let nextId = previousId;
+    while (nextId === previousId) {
+        nextId = healthVideos[Math.floor(Math.random() * healthVideos.length)];
+    }
+    return nextId;
+}
+
+function setRandomVideo() {
+    const iframe = document.getElementById("healthVideo");
+    const caption = document.getElementById("videoCaption");
+    if (!iframe) return;
+
+    const currentId = iframe.dataset.videoId || "";
+    const nextId = pickRandomVideo(currentId);
+    iframe.dataset.videoId = nextId;
+    iframe.src = `https://www.youtube.com/embed/${nextId}`;
+
+    if (caption) {
+        const currentIndex = healthVideos.indexOf(nextId) + 1;
+        caption.textContent = `目前隨機選到第 ${currentIndex} 部影片。重新整理頁面或按按鈕會再換一部。`;
+    }
 }
 
 function getBradenValues() {
@@ -413,6 +456,7 @@ function init() {
     updateBradenScore();
     buildGame();
     renderAllHistory();
+    setRandomVideo();
 
     document.getElementById("soapieForm").addEventListener("submit", (event) => {
         event.preventDefault();
@@ -440,6 +484,7 @@ function init() {
     });
 
     document.getElementById("resetGame").addEventListener("click", buildGame);
+    document.getElementById("randomVideoBtn").addEventListener("click", setRandomVideo);
 }
 
 window.addEventListener("DOMContentLoaded", init);

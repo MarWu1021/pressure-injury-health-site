@@ -309,10 +309,15 @@
             <div class="education-grid">
                 <article class="video-panel">
                     <div class="video-frame">
-                        <iframe src="https://www.youtube.com/embed/eiCw5Rq5EZc" title="健康生活衛教影片" allowfullscreen></iframe>
+                        <iframe id="healthVideo" src="https://www.youtube.com/embed/3SpS4oDsN-g" title="隨機健康衛教影片" allowfullscreen></iframe>
                     </div>
-                    <h3>健康生活學堂</h3>
-                    <p>可替換為課堂指定影片，作為防跌、用藥安全、飲食控制與居家照護衛教入口。</p>
+                    <div class="video-copy">
+                        <div>
+                            <h3>健康生活學堂</h3>
+                            <p id="videoCaption">每次進入頁面會隨機播放一部衛教影片。</p>
+                        </div>
+                        <button type="button" id="randomVideoBtn">換一部影片</button>
+                    </div>
                 </article>
 
                 <article class="game-panel">
@@ -363,6 +368,6 @@
         <p>本網站為專題展示，不取代醫師、護理師、藥師或營養師之專業判斷。</p>
     </footer>
 
-    <script src="app.js?v=1"></script>
+    <script src="app.js?v=2"></script>
 </body>
 </html>

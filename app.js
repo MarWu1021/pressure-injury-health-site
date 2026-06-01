@@ -223,11 +223,7 @@ function makePressureReport() {
     const hasDiabetes = document.getElementById("hasDiabetes").checked;
     const hasFever = document.getElementById("hasFever").checked;
     const note = document.getElementById("pressureNote").value.trim();
-    const extraFlags = [
-        hasDiabetes ? "有糖尿病史，需留意傷口癒合與感染風險" : "",
-        hasFever ? "近期有發燒，需評估感染或發炎可能" : "",
-        note ? `補充描述：${note}` : ""
-    ].filter(Boolean);
+    const clinical = buildPressureClinicalAdvice({ hasDiabetes, hasFever, note, completed, score, risk });
 
     report.classList.remove("hidden");
 
@@ -248,6 +244,10 @@ function makePressureReport() {
                     <strong>Braden 分數</strong>
                     <span>${completed ? `${score} 分，${risk.label}` : "尚未完成，請補齊六項分數"}</span>
                 </div>
+                <div>
+                    <strong>臨床風險</strong>
+                    <span>${escapeHtml(clinical.summary)}</span>
+                </div>
             </div>
             <p class="note">目前照片不像皮膚或傷口，因此不會儲存為壓瘡分析紀錄。</p>
         `;
@@ -267,23 +267,27 @@ function makePressureReport() {
             </div>
             <div>
                 <strong>翻身與減壓</strong>
-                <span>${risk.turning || risk.advice}</span>
+                <span>${escapeHtml(clinical.turning)}</span>
             </div>
             <div>
                 <strong>皮膚觀察</strong>
-                <span>${risk.skin || "請補齊評估後產生建議。"}</span>
+                <span>${escapeHtml(clinical.skin)}</span>
             </div>
             <div>
                 <strong>輔具與照護</strong>
-                <span>${risk.support || "請依臨床狀況安排減壓與移位輔具。"}</span>
+                <span>${escapeHtml(clinical.support)}</span>
             </div>
             <div>
                 <strong>主要建議</strong>
-                <span>${risk.advice}</span>
+                <span>${escapeHtml(clinical.mainAdvice)}</span>
             </div>
             <div>
-                <strong>臨床提醒</strong>
-                <span>${extraFlags.length ? extraFlags.join("；") : "未填寫額外臨床風險因子。"}</span>
+                <strong>臨床風險加權</strong>
+                <span>${escapeHtml(clinical.summary)}</span>
+            </div>
+            <div>
+                <strong>追蹤頻率</strong>
+                <span>${escapeHtml(clinical.followUp)}</span>
             </div>
         </div>
         <p class="note">此報告為教學展示用途，壓瘡分期、感染判斷與治療方式仍需由醫護人員評估。</p>
@@ -291,8 +295,75 @@ function makePressureReport() {
 
     saveHistory("pressure", {
         scoreText: completed ? `${score} 分｜${risk.label}` : "尚未完成",
-        summary: [pressurePhotoAnalysis.summary, risk.advice, ...extraFlags].filter(Boolean).join("；")
+        summary: [pressurePhotoAnalysis.summary, clinical.summary, clinical.mainAdvice].filter(Boolean).join("；")
     });
+}
+
+function buildPressureClinicalAdvice({ hasDiabetes, hasFever, note, completed, score, risk }) {
+    let level = 0;
+    const flags = [];
+
+    if (hasDiabetes) {
+        level += 1;
+        flags.push("糖尿病史：傷口癒合較慢，感染風險較高");
+    }
+
+    if (hasFever) {
+        level += 2;
+        flags.push("近期發燒：需優先評估感染或發炎可能");
+    }
+
+    if (note) {
+        flags.push(`補充描述：${note}`);
+    }
+
+    const baseTurning = risk.turning || risk.advice;
+    const baseSkin = risk.skin || "請補齊評估後產生建議。";
+    const baseSupport = risk.support || "請依臨床狀況安排減壓與移位輔具。";
+    const baseAdvice = risk.advice;
+    const scoreText = completed ? `${score} 分，${risk.label}` : "Braden 尚未完成";
+
+    if (!level) {
+        return {
+            summary: "未勾選糖尿病或發燒，依 Braden 分數與照片初步檢核給予一般照護建議。",
+            turning: baseTurning,
+            skin: baseSkin,
+            support: baseSupport,
+            mainAdvice: baseAdvice,
+            followUp: completed ? `${scoreText}，依目前風險等級定期追蹤。` : "請先補齊 Braden 六項分數。"
+        };
+    }
+
+    if (level >= 3) {
+        return {
+            summary: `高警示：${flags.join("；")}。`,
+            turning: `${baseTurning}；因同時有糖尿病與發燒，建議提高一級照護警戒。`,
+            skin: `${baseSkin}；每班確認紅腫熱痛、滲液、異味與傷口擴大情形。`,
+            support: `${baseSupport}；必要時提早使用減壓床墊、足跟保護與移位輔具。`,
+            mainAdvice: `${baseAdvice}；需優先排除感染並追蹤血糖控制，避免傷口惡化。`,
+            followUp: "建議每班追蹤皮膚與體溫，若有滲液、異味、疼痛加劇或發燒持續，應通報醫護人員。"
+        };
+    }
+
+    if (hasFever) {
+        return {
+            summary: `感染警示：${flags.join("；")}。`,
+            turning: `${baseTurning}；發燒時需縮短觀察間隔。`,
+            skin: `${baseSkin}；特別注意傷口周圍是否有紅腫熱痛、滲液或異味。`,
+            support: baseSupport,
+            mainAdvice: `${baseAdvice}；近期發燒時需評估感染或發炎可能。`,
+            followUp: "建議每班追蹤體溫與皮膚變化，必要時通報醫護人員。"
+        };
+    }
+
+    return {
+        summary: `癒合風險：${flags.join("；")}。`,
+        turning: baseTurning,
+        skin: `${baseSkin}；糖尿病史者需更注意傷口癒合速度與感染徵象。`,
+        support: `${baseSupport}；避免局部壓迫與剪力造成傷口延遲癒合。`,
+        mainAdvice: `${baseAdvice}；建議同步追蹤血糖控制與營養攝取。`,
+        followUp: "建議每日追蹤傷口大小、顏色、滲液與周圍皮膚狀況。"
+    };
 }
 
 function handlePressurePhoto(event) {
@@ -353,6 +424,7 @@ function analyzePressureImage(dataUrl) {
             let darkTissue = 0;
             let greenBackground = 0;
             let blueBackground = 0;
+            let highSaturationWarm = 0;
 
             for (let index = 0; index < pixels.length; index += 16) {
                 const r = pixels[index];
@@ -366,7 +438,22 @@ function analyzePressureImage(dataUrl) {
                 const saturation = max ? (max - min) / max : 0;
                 total += 1;
 
-                if (r > 95 && g > 45 && b > 25 && r > g && g > b && saturation >= 0.12 && saturation <= 0.58) {
+                const cb = 128 - 0.168736 * r - 0.331264 * g + 0.5 * b;
+                const cr = 128 + 0.5 * r - 0.418688 * g - 0.081312 * b;
+
+                if (
+                    r > 80 &&
+                    g > 35 &&
+                    b > 20 &&
+                    r > g &&
+                    g >= b &&
+                    saturation >= 0.08 &&
+                    saturation <= 0.46 &&
+                    cb >= 77 &&
+                    cb <= 127 &&
+                    cr >= 133 &&
+                    cr <= 173
+                ) {
                     skin += 1;
                 }
 
@@ -385,6 +472,10 @@ function analyzePressureImage(dataUrl) {
                 if (b > 95 && b > r * 1.08 && b > g * 1.04 && saturation > 0.18) {
                     blueBackground += 1;
                 }
+
+                if (r > 135 && g > 45 && b < 135 && r > g * 1.12 && saturation > 0.42) {
+                    highSaturationWarm += 1;
+                }
             }
 
             const ratio = (value) => value / Math.max(total, 1);
@@ -393,7 +484,8 @@ function analyzePressureImage(dataUrl) {
             const darkRatio = ratio(darkTissue);
             const greenRatio = ratio(greenBackground);
             const blueRatio = ratio(blueBackground);
-            const skinOrWoundSignal = skinRatio + redRatio + darkRatio * 0.6;
+            const warmRatio = ratio(highSaturationWarm);
+            const skinOrWoundSignal = skinRatio + redRatio * 0.55 + darkRatio * 0.45;
             const plantOrSceneSignal = greenRatio + blueRatio;
 
             if (total < 80) {
@@ -404,15 +496,15 @@ function analyzePressureImage(dataUrl) {
                 return;
             }
 
-            if (greenRatio > 0.08 && skinOrWoundSignal < 0.32) {
+            if (greenRatio > 0.06 && warmRatio > 0.08) {
                 resolve({
                     status: "invalid",
-                    summary: "照片中偵測到大量綠色背景，較像植物或環境照片，請改上傳受壓部位皮膚或傷口照片。"
+                    summary: "照片中同時偵測到大量綠色背景與高飽和橘紅色，較像花草或環境照片，請改上傳受壓部位皮膚或傷口照片。"
                 });
                 return;
             }
 
-            if (plantOrSceneSignal > 0.22 && skinOrWoundSignal < 0.38) {
+            if (greenRatio > 0.12 || plantOrSceneSignal > 0.2) {
                 resolve({
                     status: "invalid",
                     summary: "照片背景色占比過高，系統無法確認為皮膚或傷口照片，請重新拍攝受壓部位。"
@@ -420,10 +512,26 @@ function analyzePressureImage(dataUrl) {
                 return;
             }
 
-            if (skinOrWoundSignal < 0.12) {
+            if (skinRatio < 0.12 && redRatio < 0.1 && darkRatio < 0.12) {
                 resolve({
                     status: "invalid",
                     summary: "照片中缺少足夠的皮膚或紅色傷口特徵，請重新上傳清楚的皮膚狀況照片。"
+                });
+                return;
+            }
+
+            if (skinRatio < 0.18 && warmRatio > 0.18) {
+                resolve({
+                    status: "invalid",
+                    summary: "照片主要是高飽和橘紅色區塊，但缺少周圍皮膚特徵，系統判定不像壓瘡照片。"
+                });
+                return;
+            }
+
+            if (skinOrWoundSignal < 0.16) {
+                resolve({
+                    status: "invalid",
+                    summary: "照片中的皮膚或傷口訊號不足，請重新拍攝清楚的受壓部位。"
                 });
                 return;
             }

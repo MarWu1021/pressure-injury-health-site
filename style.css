@@ -93,10 +93,24 @@ textarea {
     color: var(--green-dark);
 }
 
+.nav-links a.active-nav,
+.brand.active-nav {
+    background: #eaf2ef;
+    color: var(--green-dark);
+}
+
 main {
     margin: 0 auto;
     max-width: 1180px;
     padding: 24px clamp(18px, 4vw, 42px) 0;
+}
+
+.page-section {
+    display: none;
+}
+
+.page-section.active-page {
+    display: block;
 }
 
 .hero {
@@ -620,6 +634,28 @@ textarea {
     max-height: 260px;
     object-fit: contain;
     width: 100%;
+}
+
+.photo-status {
+    background: #f8fafc;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    color: var(--muted);
+    font-weight: 900;
+    margin: 12px 0 0;
+    padding: 10px 12px;
+}
+
+.photo-status.valid {
+    background: #dcfce7;
+    border-color: #b6e6c8;
+    color: var(--green-dark);
+}
+
+.photo-status.invalid {
+    background: #fde7e7;
+    border-color: #f5c2c2;
+    color: var(--red);
 }
 
 .check-row {

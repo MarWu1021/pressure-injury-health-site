@@ -40,6 +40,7 @@ const healthVideos = [
 
 let openCards = [];
 let lockBoard = false;
+let pressurePhotoAnalysis = null;
 
 const HISTORY_KEYS = {
     soapie: "careHistory.soapie",
@@ -229,9 +230,37 @@ function makePressureReport() {
     ].filter(Boolean);
 
     report.classList.remove("hidden");
+
+    if (!pressurePhotoAnalysis || pressurePhotoAnalysis.status !== "valid") {
+        const message = pressurePhotoAnalysis?.summary || "請先上傳清楚的皮膚或疑似傷口照片，系統才會產生照片相關分析。";
+        report.innerHTML = `
+            <h3>照片檢核未通過</h3>
+            <div class="report-grid">
+                <div>
+                    <strong>照片狀態</strong>
+                    <span>${escapeHtml(message)}</span>
+                </div>
+                <div>
+                    <strong>處理方式</strong>
+                    <span>請重新上傳受壓部位、皮膚泛紅、破皮或疑似傷口照片，避免花草、食物、風景等非皮膚照片。</span>
+                </div>
+                <div>
+                    <strong>Braden 分數</strong>
+                    <span>${completed ? `${score} 分，${risk.label}` : "尚未完成，請補齊六項分數"}</span>
+                </div>
+            </div>
+            <p class="note">目前照片不像皮膚或傷口，因此不會儲存為壓瘡分析紀錄。</p>
+        `;
+        return;
+    }
+
     report.innerHTML = `
         <h3>AI 分析報告草稿</h3>
         <div class="report-grid">
+            <div>
+                <strong>照片初步檢核</strong>
+                <span>${escapeHtml(pressurePhotoAnalysis.summary)}</span>
+            </div>
             <div>
                 <strong>Braden 總分</strong>
                 <span>${completed ? `${score} 分，${risk.label}` : "尚未完成，請補齊六項分數"}</span>
@@ -262,21 +291,162 @@ function makePressureReport() {
 
     saveHistory("pressure", {
         scoreText: completed ? `${score} 分｜${risk.label}` : "尚未完成",
-        summary: [risk.advice, ...extraFlags].filter(Boolean).join("；")
+        summary: [pressurePhotoAnalysis.summary, risk.advice, ...extraFlags].filter(Boolean).join("；")
     });
 }
 
 function handlePressurePhoto(event) {
     const file = event.target.files?.[0];
     const preview = document.getElementById("pressurePreview");
+    const status = document.getElementById("pressurePhotoStatus");
+    pressurePhotoAnalysis = null;
     if (!file || !preview) return;
 
+    if (status) {
+        status.className = "photo-status";
+        status.textContent = "正在檢查照片內容...";
+    }
+
     const reader = new FileReader();
-    reader.onload = () => {
+    reader.onload = async () => {
         preview.src = reader.result;
         preview.classList.remove("hidden");
+        pressurePhotoAnalysis = await analyzePressureImage(reader.result);
+        renderPressurePhotoStatus();
     };
     reader.readAsDataURL(file);
+}
+
+function renderPressurePhotoStatus() {
+    const status = document.getElementById("pressurePhotoStatus");
+    if (!status || !pressurePhotoAnalysis) return;
+
+    status.className = `photo-status ${pressurePhotoAnalysis.status}`;
+    status.textContent = pressurePhotoAnalysis.summary;
+}
+
+function analyzePressureImage(dataUrl) {
+    return new Promise((resolve) => {
+        const img = new Image();
+
+        img.onload = () => {
+            const canvas = document.createElement("canvas");
+            const maxSize = 180;
+            const scale = Math.min(1, maxSize / img.width, maxSize / img.height);
+            canvas.width = Math.max(1, Math.round(img.width * scale));
+            canvas.height = Math.max(1, Math.round(img.height * scale));
+
+            const ctx = canvas.getContext("2d", { willReadFrequently: true });
+            if (!ctx) {
+                resolve({
+                    status: "invalid",
+                    summary: "瀏覽器無法讀取照片，請重新上傳清楚的皮膚或傷口照片。"
+                });
+                return;
+            }
+
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            const pixels = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+            let total = 0;
+            let skin = 0;
+            let woundRed = 0;
+            let darkTissue = 0;
+            let greenBackground = 0;
+            let blueBackground = 0;
+
+            for (let index = 0; index < pixels.length; index += 16) {
+                const r = pixels[index];
+                const g = pixels[index + 1];
+                const b = pixels[index + 2];
+                const a = pixels[index + 3];
+                if (a < 180) continue;
+
+                const max = Math.max(r, g, b);
+                const min = Math.min(r, g, b);
+                const saturation = max ? (max - min) / max : 0;
+                total += 1;
+
+                if (r > 95 && g > 45 && b > 25 && r > g && g > b && saturation >= 0.12 && saturation <= 0.58) {
+                    skin += 1;
+                }
+
+                if (r > 115 && r > g * 1.22 && r > b * 1.22 && saturation > 0.24) {
+                    woundRed += 1;
+                }
+
+                if (r < 105 && g < 95 && b < 95 && saturation > 0.16) {
+                    darkTissue += 1;
+                }
+
+                if (g > 90 && g > r * 1.08 && g > b * 1.08 && saturation > 0.18) {
+                    greenBackground += 1;
+                }
+
+                if (b > 95 && b > r * 1.08 && b > g * 1.04 && saturation > 0.18) {
+                    blueBackground += 1;
+                }
+            }
+
+            const ratio = (value) => value / Math.max(total, 1);
+            const skinRatio = ratio(skin);
+            const redRatio = ratio(woundRed);
+            const darkRatio = ratio(darkTissue);
+            const greenRatio = ratio(greenBackground);
+            const blueRatio = ratio(blueBackground);
+            const skinOrWoundSignal = skinRatio + redRatio + darkRatio * 0.6;
+            const plantOrSceneSignal = greenRatio + blueRatio;
+
+            if (total < 80) {
+                resolve({
+                    status: "invalid",
+                    summary: "照片解析度或內容太少，請重新上傳清楚的皮膚或疑似傷口照片。"
+                });
+                return;
+            }
+
+            if (greenRatio > 0.08 && skinOrWoundSignal < 0.32) {
+                resolve({
+                    status: "invalid",
+                    summary: "照片中偵測到大量綠色背景，較像植物或環境照片，請改上傳受壓部位皮膚或傷口照片。"
+                });
+                return;
+            }
+
+            if (plantOrSceneSignal > 0.22 && skinOrWoundSignal < 0.38) {
+                resolve({
+                    status: "invalid",
+                    summary: "照片背景色占比過高，系統無法確認為皮膚或傷口照片，請重新拍攝受壓部位。"
+                });
+                return;
+            }
+
+            if (skinOrWoundSignal < 0.12) {
+                resolve({
+                    status: "invalid",
+                    summary: "照片中缺少足夠的皮膚或紅色傷口特徵，請重新上傳清楚的皮膚狀況照片。"
+                });
+                return;
+            }
+
+            const cue = redRatio > 0.08
+                ? "偵測到疑似泛紅或傷口色塊"
+                : darkRatio > 0.08
+                    ? "偵測到疑似深色組織或陰影區域"
+                    : "偵測到疑似皮膚區域";
+
+            resolve({
+                status: "valid",
+                summary: `${cue}，可產生初步照護建議；此影像檢核僅供專題展示，不等同醫療診斷。`
+            });
+        };
+
+        img.onerror = () => resolve({
+            status: "invalid",
+            summary: "無法讀取照片，請重新上傳 JPG 或 PNG 格式的皮膚或傷口照片。"
+        });
+
+        img.src = dataUrl;
+    });
 }
 
 function generateSoapie(note) {
@@ -450,7 +620,52 @@ function checkGameDone() {
     }
 }
 
+function normalizePageId(id) {
+    if (!id || id === "home") return "homePage";
+    return id;
+}
+
+function showPage(id, shouldUpdateHash = true) {
+    const pageId = normalizePageId(id);
+    const pages = [...document.querySelectorAll(".page-section")];
+    const target = document.getElementById(pageId);
+    if (!target) return;
+
+    pages.forEach((page) => {
+        page.classList.toggle("active-page", page === target);
+    });
+
+    document.querySelectorAll(".nav-links a, .brand").forEach((link) => {
+        const linkId = normalizePageId(link.getAttribute("href")?.replace("#", ""));
+        link.classList.toggle("active-nav", linkId === pageId);
+    });
+
+    if (shouldUpdateHash) {
+        window.history.replaceState(null, "", `#${pageId}`);
+    }
+
+    window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function initPaging() {
+    const pageIds = new Set([...document.querySelectorAll(".page-section")].map((section) => section.id));
+
+    document.querySelectorAll('a[href^="#"]').forEach((link) => {
+        const targetId = normalizePageId(link.getAttribute("href").replace("#", ""));
+        if (!pageIds.has(targetId)) return;
+
+        link.addEventListener("click", (event) => {
+            event.preventDefault();
+            showPage(targetId);
+        });
+    });
+
+    const initialId = normalizePageId(window.location.hash.replace("#", ""));
+    showPage(pageIds.has(initialId) ? initialId : "homePage", false);
+}
+
 function init() {
+    initPaging();
     renderSoapie(defaultSoapie);
     renderRisk(analyzeDiet("diabetes", document.getElementById("meal").value));
     updateBradenScore();

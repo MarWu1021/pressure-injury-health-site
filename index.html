@@ -11,7 +11,7 @@
 </head>
 <body>
     <header class="topbar">
-        <a class="brand" href="#home" aria-label="回到首頁">
+        <a class="brand" href="#homePage" aria-label="回到首頁">
             <span class="brand-mark">+</span>
             <span>銀髮健康全守護站</span>
         </a>
@@ -20,62 +20,65 @@
             <a href="#pressure">壓瘡評估</a>
             <a href="#diet">飲食管理</a>
             <a href="#education">衛教互動</a>
+            <a href="#history">歷史紀錄</a>
         </nav>
     </header>
 
     <main id="home">
-        <section class="hero">
-            <div class="hero-copy">
-                <p class="eyebrow">護你日常</p>
-                <h1>陪伴您的智慧健康照護助手</h1>
-                <p class="hero-text">本網站結合護理紀錄、壓瘡風險評估、營養分析、衛教影片與互動功能，讓健康照護更簡單、更貼近日常。</p>
-                <div class="hero-actions">
-                    <a class="primary-action" href="#nursing">開始整理紀錄</a>
-                    <a class="secondary-action" href="#pressure">評估壓瘡風險</a>
+        <section id="homePage" class="page-section active-page">
+            <section class="hero">
+                <div class="hero-copy">
+                    <p class="eyebrow">護你日常</p>
+                    <h1>陪伴您的智慧健康照護助手</h1>
+                    <p class="hero-text">本網站結合護理紀錄、壓瘡風險評估、營養分析、衛教影片與互動功能，讓健康照護更簡單、更貼近日常。</p>
+                    <div class="hero-actions">
+                        <a class="primary-action" href="#nursing">開始整理紀錄</a>
+                        <a class="secondary-action" href="#pressure">評估壓瘡風險</a>
+                    </div>
                 </div>
-            </div>
-            <div class="hero-visual" aria-label="護理與飲食照護插圖">
-                <div class="monitor-card">
-                    <span class="status-dot"></span>
-                    <strong>302 床 李女士</strong>
-                    <small>SpO2 88% | 呼吸 28 次/分</small>
-                    <div class="wave-line"></div>
+                <div class="hero-visual" aria-label="護理與飲食照護插圖">
+                    <div class="monitor-card">
+                        <span class="status-dot"></span>
+                        <strong>302 床 李女士</strong>
+                        <small>SpO2 88% | 呼吸 28 次/分</small>
+                        <div class="wave-line"></div>
+                    </div>
+                    <div class="plate-card">
+                        <span>Braden 壓瘡風險</span>
+                        <strong id="heroPressureRisk">尚未完成</strong>
+                    </div>
                 </div>
-                <div class="plate-card">
-                    <span>Braden 壓瘡風險</span>
-                    <strong id="heroPressureRisk">尚未完成</strong>
-                </div>
-            </div>
+            </section>
+
+            <section class="summary-grid portal-grid" aria-label="功能入口">
+                <a class="portal-card" href="#nursing">
+                    <span class="summary-icon">01</span>
+                    <h2>護理紀錄 AI</h2>
+                    <p>語音轉文字、自然語言處理、SOAPIE 草稿、自動提醒遺漏評估，目標是減少紀錄時間並提升品質。</p>
+                    <strong>開始整理紀錄</strong>
+                </a>
+                <a class="portal-card" href="#pressure">
+                    <span class="summary-icon">02</span>
+                    <h2>壓瘡評估 AI</h2>
+                    <p>整合 Braden 六大項目、傷口照片與臨床資訊，快速產生壓瘡風險分級與照護建議。</p>
+                    <strong>評估壓瘡風險</strong>
+                </a>
+                <a class="portal-card" href="#diet">
+                    <span class="summary-icon">03</span>
+                    <h2>飲食風險 AI</h2>
+                    <p>拍照辨識餐點、比對營養成分，對糖尿病與腎臟病飲食以紅黃綠燈呈現風險。</p>
+                    <strong>檢查飲食風險</strong>
+                </a>
+                <a class="portal-card" href="#education">
+                    <span class="summary-icon">04</span>
+                    <h2>衛教互動</h2>
+                    <p>保留原始網站的大按鈕、AI 護理師、衛教影片與動腦遊戲，讓功能更容易被使用。</p>
+                    <strong>進入健康學堂</strong>
+                </a>
+            </section>
         </section>
 
-        <section class="summary-grid portal-grid" aria-label="功能入口">
-            <a class="portal-card" href="#nursing">
-                <span class="summary-icon">01</span>
-                <h2>護理紀錄 AI</h2>
-                <p>語音轉文字、自然語言處理、SOAPIE 草稿、自動提醒遺漏評估，目標是減少紀錄時間並提升品質。</p>
-                <strong>開始整理紀錄</strong>
-            </a>
-            <a class="portal-card" href="#pressure">
-                <span class="summary-icon">02</span>
-                <h2>壓瘡評估 AI</h2>
-                <p>整合 Braden 六大項目、傷口照片與臨床資訊，快速產生壓瘡風險分級與照護建議。</p>
-                <strong>評估壓瘡風險</strong>
-            </a>
-            <a class="portal-card" href="#diet">
-                <span class="summary-icon">03</span>
-                <h2>飲食風險 AI</h2>
-                <p>拍照辨識餐點、比對營養成分，對糖尿病與腎臟病飲食以紅黃綠燈呈現風險。</p>
-                <strong>檢查飲食風險</strong>
-            </a>
-            <a class="portal-card" href="#education">
-                <span class="summary-icon">04</span>
-                <h2>衛教互動</h2>
-                <p>保留原始網站的大按鈕、AI 護理師、衛教影片與動腦遊戲，讓功能更容易被使用。</p>
-                <strong>進入健康學堂</strong>
-            </a>
-        </section>
-
-        <section id="nursing" class="section-band">
+        <section id="nursing" class="section-band page-section">
             <div class="section-heading">
                 <p class="eyebrow">Smart Nursing Documentation System</p>
                 <h2>AI 護理紀錄輔助</h2>
@@ -118,7 +121,7 @@
             </div>
         </section>
 
-        <section id="pressure" class="section-band pressure-band">
+        <section id="pressure" class="section-band pressure-band page-section">
             <div class="section-heading">
                 <p class="eyebrow">Braden Pressure Injury Assistant</p>
                 <h2>壓瘡 AI 評估助教</h2>
@@ -237,13 +240,14 @@
 
             <div class="pressure-layout">
                 <article class="workspace-panel">
-                    <h3>第一步：拍攝照片（可選）</h3>
+                    <h3>第一步：拍攝照片（必填）</h3>
                     <label class="upload-zone" for="pressurePhoto">
                         <input id="pressurePhoto" type="file" accept="image/*">
                         <span>上傳傷口或皮膚狀況照片</span>
                         <small>建議拍攝尾骶骨、足跟、髖部等受壓部位，避免拍到可識別個資。</small>
                     </label>
                     <img id="pressurePreview" class="pressure-preview hidden" alt="壓瘡評估照片預覽">
+                    <p id="pressurePhotoStatus" class="photo-status">尚未上傳照片，請先上傳皮膚或疑似傷口照片。</p>
                 </article>
 
                 <article class="workspace-panel">
@@ -264,7 +268,7 @@
             <article id="pressureReport" class="output-panel pressure-report hidden"></article>
         </section>
 
-        <section id="diet" class="section-band diet-band">
+        <section id="diet" class="section-band diet-band page-section">
             <div class="section-heading">
                 <p class="eyebrow">AI Food Risk Management</p>
                 <h2>智慧飲食風險管理</h2>
@@ -313,7 +317,7 @@
             </div>
         </section>
 
-        <section id="education" class="section-band">
+        <section id="education" class="section-band page-section">
             <div class="section-heading">
                 <p class="eyebrow">Senior Friendly Care</p>
                 <h2>衛教與動腦互動</h2>
@@ -345,7 +349,7 @@
             </div>
         </section>
 
-        <section id="history" class="section-band history-band">
+        <section id="history" class="section-band history-band page-section">
             <div class="section-heading">
                 <p class="eyebrow">Local Care Timeline</p>
                 <h2>歷史紀錄</h2>
